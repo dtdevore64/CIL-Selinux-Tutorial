@@ -123,7 +123,7 @@ cat xcowsay.cil
 <br><br><br><br>
 
 
-***Step 6.*** Let's try to cut all the unecessary bloat that we have in this .cil file now. For instance we don't need those cil_gen_require statements at all--- unlike Reference Policy where you have to have require statements in order for your policy to build and work. I also added some spacing so you can read it better.
+***Step 6.*** Let's try to cut all the unecessary bloat that we have in this ```".cil"``` file now. For instance we don't need those cil_gen_require statements at all--- unlike Reference Policy where you have to have require statements in order for your policy to build and work. I also added some spacing so you can read it better.
 
 ```
 (type xcowsay_t)
