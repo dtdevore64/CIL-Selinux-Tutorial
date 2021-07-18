@@ -128,6 +128,7 @@ cat xcowsay.cil
 ```
 
 ;;;;;;;;;Declare our xcowsay_t type and associate with the object_r type;;;;;;;;;;;;;;;;;;;;;
+
 (type xcowsay_t)
 (roletype object_r xcowsay_t)
 
