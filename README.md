@@ -12,7 +12,7 @@ I will show you how to change your Selinux Refpolicy into CIL Policy with an exa
 touch xcowsay.te
 touch xcowsay.fc
 ```
-<br><br><br><br>
+<br><br><br>
 
 
 ***Step 2.*** We will start with writing the policy for the ```"te"``` file.
