@@ -74,7 +74,7 @@ sudo semodule -i xcowsay.pp
 cat xcowsay.pp | /usr/libexec/selinux/hll/pp > xcowsay.cil
 cat xcowsay.cil
 ```
-
+<br><br>
 ```
 (type xcowsay_t)
 (roletype object_r xcowsay_t)
