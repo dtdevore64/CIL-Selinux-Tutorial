@@ -56,3 +56,66 @@ allow xcowsay_t fs_t:filesystem getattr;
 
 ```
 <br><br><br><br>
+
+
+***Step 4.*** Make and install the policy module
+
+``` 
+sudo make -f /usr/share/selinux/devel/Makefile xcowsay.pp
+sudo semodule -i xcowsay.pp
+    
+```
+<br><br><br><br>
+
+
+***Step 5.*** Change the policy package into CIL format
+
+```
+cat xcowsay.pp | /usr/libexec/selinux/hll/pp > xcowsay.cil
+cat xcowsay.cil
+```
+
+```
+(type xcowsay_t)
+(roletype object_r xcowsay_t)
+(type xcowsay_exec_t)
+(roletype object_r xcowsay_exec_t)
+(roleattributeset cil_gen_require system_r)
+(roleattributeset cil_gen_require staff_r)
+(roletype staff_r xcowsay_t)
+(typeattributeset cil_gen_require xcowsay_t)
+(typeattributeset cil_gen_require xcowsay_exec_t)
+(typeattributeset cil_gen_require application_domain_type)
+(typeattributeset application_domain_type (xcowsay_t ))
+(typeattributeset cil_gen_require domain)
+(typeattributeset domain (xcowsay_t ))
+(typeattributeset cil_gen_require corenet_unlabeled_type)
+(typeattributeset corenet_unlabeled_type (xcowsay_t ))
+(typeattributeset cil_gen_require application_exec_type)
+(typeattributeset application_exec_type (xcowsay_exec_t ))
+(typeattributeset cil_gen_require exec_type)
+(typeattributeset exec_type (xcowsay_exec_t ))
+(typeattributeset cil_gen_require file_type)
+(typeattributeset file_type (xcowsay_exec_t ))
+(typeattributeset cil_gen_require non_security_file_type)
+(typeattributeset non_security_file_type (xcowsay_exec_t ))
+(typeattributeset cil_gen_require non_auth_file_type)
+(typeattributeset non_auth_file_type (xcowsay_exec_t ))
+(typeattributeset cil_gen_require entry_type)
+(typeattributeset entry_type (xcowsay_exec_t ))
+(typeattributeset cil_gen_require staff_t)
+(typeattributeset cil_gen_require fs_t)
+(allow xcowsay_t xcowsay_exec_t (file (entrypoint)))
+(allow xcowsay_t xcowsay_exec_t (file (ioctl read getattr lock map execute open)))
+(allow staff_t xcowsay_exec_t (file (ioctl read getattr map execute open execute_no_trans)))
+(allow staff_t xcowsay_t (process (transition)))
+(typetransition staff_t xcowsay_exec_t process xcowsay_t)
+(allow xcowsay_t staff_t (fd (use)))
+(allow xcowsay_t staff_t (fifo_file (ioctl read write getattr lock append)))
+(allow xcowsay_t staff_t (process (sigchld)))
+(allow xcowsay_t staff_t (unix_stream_socket (connectto)))
+(allow xcowsay_t fs_t (filesystem (getattr)))
+(filecon "/usr/bin/xcowsay" file (staff_u object_r xcowsay_exec_t ((s0) (s0))))
+
+```
+
