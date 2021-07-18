@@ -1,0 +1,43 @@
+;;;;;;;;;Declare our xcowsay_t type and associate with the object_r type;;;;;;;;;;;;;;;;;;;;;
+
+(type xcowsay_t)
+(roletype object_r xcowsay_t)
+
+
+;;;;;;;;;;Declare our xcowsay_exec_t type and associate it with the object_r type;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(type xcowsay_exec_t)
+(roletype object_r xcowsay_exec_t)
+
+
+
+;;;;;;;;;;;;;;Associate our staff_r role to our xcowsay_t type;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(roletype staff_r xcowsay_t)
+
+
+;;;;;;;;;;;;;; These rules are basically the same as calling the application_domain interface in Refpolicy;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(typeattributeset application_domain_type (xcowsay_t))
+(typeattributeset application_exec_type (xcowsay_exec_t))
+(typeattributeset domain (xcowsay_t))
+(typeattributeset entry_type (xcowsay_exec_t))
+
+;;;;;;;;;;;;;;;;These are the allow rules so that we can do a typetransition;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(allow xcowsay_t xcowsay_exec_t (file (entrypoint ioctl read getattr lock map execute open)))
+(allow staff_t xcowsay_exec_t (file (ioctl read getattr map execute open execute_no_trans)))
+(allow staff_t xcowsay_t (process (transition)))
+(typetransition staff_t xcowsay_exec_t process xcowsay_t)
+
+;;;;;;;;;;;;;;;;;;;;;;;More allow rules;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(allow xcowsay_t staff_t (fd (use)))
+(allow xcowsay_t staff_t (fifo_file (ioctl read write getattr lock append)))
+(allow xcowsay_t staff_t (process (sigchld)))
+(allow xcowsay_t staff_t (unix_stream_socket (connectto)))
+(allow xcowsay_t fs_t (filesystem (getattr)))
+
+;;;;;;;;;;;;;;;;;;This is the file context for our file;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(filecon "/usr/bin/xcowsay" file (staff_u object_r xcowsay_exec_t ((s0) (s0))))
