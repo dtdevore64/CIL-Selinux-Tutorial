@@ -120,3 +120,41 @@ cat xcowsay.cil
 
 ```
 
+<br><br><br><br>
+
+
+***Step 6.*** Let's try to cut all the unecessary bloat that we have in this .cil file now. For instance we don't need those cil_gen_require statements at all--- unlike Reference Policy where you have to have require statements in order for your policy to build and work. I also added some spacing so you can read it better.
+
+```
+(type xcowsay_t)
+(roletype object_r xcowsay_t)
+
+(type xcowsay_exec_t)
+(roletype object_r xcowsay_exec_t)
+
+
+(roletype staff_r xcowsay_t)
+
+(typeattributeset application_domain_type (xcowsay_t))
+(typeattributeset application_exec_type (xcowsay_exec_t))
+(typeattributeset domain (xcowsay_t))
+(typeattributeset entry_type (xcowsay_exec_t))
+
+
+(allow xcowsay_t xcowsay_exec_t (file (entrypoint ioctl read getattr lock map execute open)))
+(allow staff_t xcowsay_exec_t (file (ioctl read getattr map execute open execute_no_trans)))
+(allow staff_t xcowsay_t (process (transition)))
+(typetransition staff_t xcowsay_exec_t process xcowsay_t)
+
+(allow xcowsay_t staff_t (fd (use)))
+(allow xcowsay_t staff_t (fifo_file (ioctl read write getattr lock append)))
+(allow xcowsay_t staff_t (process (sigchld)))
+(allow xcowsay_t staff_t (unix_stream_socket (connectto)))
+(allow xcowsay_t fs_t (filesystem (getattr)))
+
+(filecon "/usr/bin/xcowsay" file (staff_u object_r xcowsay_exec_t ((s0) (s0))))
+
+```
+
+
+
