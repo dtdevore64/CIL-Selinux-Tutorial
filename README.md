@@ -143,6 +143,7 @@ sudo semodule -i xcowsay.cil
 ***Step 13.*** Run the ```xcowsay``` program again and you should get no AVC denials. Put it back into enforcing mode and run the program again to make sure it doesn't get blocked. In our case it does not get blocked once set to enforcing so there is nothing more and our policy is done!
 
 ```
+xcowsay
 sudo setenforce 1
 xcowsay
 ```
