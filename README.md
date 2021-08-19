@@ -106,7 +106,7 @@ sudo semodule -i xcowsay.cil
 <br><br><br>
 
 
-***Step 10.*** Run the ```xcowsay``` program and check the logs to see what AVC denials we get and decide on whether to add them or not to the policy. To do that run the following command
+***Step 11.*** Run the ```xcowsay``` program and check the logs to see what AVC denials we get and decide on whether to add them or not to the policy. To do that run the following command
 
 ```
 xcowsay
@@ -118,7 +118,7 @@ sudo ausearch -m AVC,USER_AVC,SELINUX_ERR,USER_SELINUX_ERR -ts 16:18
 
 
 
-***Step 11.*** These are the allow rules I got from checking the AVC denials from the previous step and decided they were ok to add to the policy
+***Step 12.*** These are the allow rules I got from checking the AVC denials from the previous step and decided they were ok to add to the policy
 
 ```
 (allow xcowsay_t staff_t (fd (use)))
@@ -132,7 +132,7 @@ sudo ausearch -m AVC,USER_AVC,SELINUX_ERR,USER_SELINUX_ERR -ts 16:18
 
 
 
-***Step 12.*** Run the ```xcowsay``` program again and you should get no AVC denials. Put it back into enforcing mode and run the program again to make sure it doesn't get blocked. In our case it does not get blocked once set to enforcing so there is nothing more and our policy is done!
+***Step 13.*** Run the ```xcowsay``` program again and you should get no AVC denials. Put it back into enforcing mode and run the program again to make sure it doesn't get blocked. In our case it does not get blocked once set to enforcing so there is nothing more and our policy is done!
 
 ```
 sudo setenforce 1
