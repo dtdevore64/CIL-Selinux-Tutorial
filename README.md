@@ -1,177 +1,123 @@
-# **Changing-Selinux-Refpolicy-to-CIL-Policy**
+# **CIL Selinux Tutorial**
 <br><br>
 
-I will show you how to change your Selinux Refpolicy into CIL Policy with an example. The example program I have used is called xcowsay and I have written the policy in Refpolicy format and will translate it into CIL for you. You will see how much less policy there is and how easier it is to write.
+I will show you how to write Selinux policy using the CIL(Common Intermediate Language). We will write the policy to confine a simple program. Our program will be the xcowsay program.
 <br><br>
 
 
 
-***Step 1.*** Create your own policy module using the Refpolicy language which should have a ```".te"``` and a ```".fc"``` file. My example looks like the following
+
+***Step 1.*** Before we start writing policy you need to make sure to put Selinux into permissive mode so we can test the policy without it getting blocked every time because it was in enforcing mode. To put it into permissive mode just run the following:
 
 ```
-touch xcowsay.te
-touch xcowsay.fc
+sudo setenforce 0
+```
+
+<br><br><br>
+
+
+
+***Step 2.*** Create the file called ```xcowsay.cil``` 
+
+```
+touch xcowsay.cil
 ```
 <br><br><br>
 
 
-***Step 2.*** We will start with writing the policy for the ```"te"``` file.
+***Step 2.*** Declare our process type and executable type
 
 ```
-policy_module(xcowsay, 1.0.0)
+(type xcowsay_t)
+(type xcowsay_exec_t)
+```
 
-type xcowsay_t;
-type xcowsay_exec_t;
-application_domain(xcowsay_t, xcowsay_exec_t)
-role staff_r types xcowsay_t;
-
-gen_require(`
+<br><br><br>
 
 
-        type xcowsay_t;
-        type xcowsay_exec_t;
-        type staff_t;
-        type fs_t;
-        role staff_r;
-
-')
-
-
-
-domtrans_pattern(staff_t, xcowsay_exec_t, xcowsay_t)
-
-
-#============= xcowsay_t ==============
-allow xcowsay_t staff_t:unix_stream_socket connectto;
-allow xcowsay_t fs_t:filesystem getattr;
+***Step 3.*** Associate our process type and executable type with the ```object_r``` role type
 
 ```
-<br><br><br><br>
-
-
-***Step 3.*** Let's work on the ```"fc"``` file now:
+(roletype object_r xcowsay_t)
+(roletype object_r xcowsay_exec_t)
 
 ```
-/usr/bin/xcowsay -- gen_context(staff_u:object_r:xcowsay_exec_t, s0)
-
-```
-<br><br><br><br>
+<br><br><br>
 
 
-***Step 4.*** Make and install the policy module
+***Step 4.*** Associate our current role on the system as a logged in user which in this case is ```staff_r``` to the process type
 
 ``` 
-sudo make -f /usr/share/selinux/devel/Makefile xcowsay.pp
-sudo semodule -i xcowsay.pp
+(roletype staff_r xcowsay_t)
     
 ```
-<br><br><br><br>
+<br><br><br>
 
 
-***Step 5.*** Change the policy package into CIL format
-
-```
-cat xcowsay.pp | /usr/libexec/selinux/hll/pp > xcowsay.cil
-cat xcowsay.cil
-```
-<br>
+***Step 5.*** Add rules that are equivalent to the ```application_domain``` interface in Refpolicy
 
 ```
-(type xcowsay_t)
-(roletype object_r xcowsay_t)
-(type xcowsay_exec_t)
-(roletype object_r xcowsay_exec_t)
-(roleattributeset cil_gen_require system_r)
-(roleattributeset cil_gen_require staff_r)
-(roletype staff_r xcowsay_t)
-(typeattributeset cil_gen_require xcowsay_t)
-(typeattributeset cil_gen_require xcowsay_exec_t)
-(typeattributeset cil_gen_require application_domain_type)
-(typeattributeset application_domain_type (xcowsay_t ))
-(typeattributeset cil_gen_require domain)
-(typeattributeset domain (xcowsay_t ))
-(typeattributeset cil_gen_require corenet_unlabeled_type)
-(typeattributeset corenet_unlabeled_type (xcowsay_t ))
-(typeattributeset cil_gen_require application_exec_type)
-(typeattributeset application_exec_type (xcowsay_exec_t ))
-(typeattributeset cil_gen_require exec_type)
-(typeattributeset exec_type (xcowsay_exec_t ))
-(typeattributeset cil_gen_require file_type)
-(typeattributeset file_type (xcowsay_exec_t ))
-(typeattributeset cil_gen_require non_security_file_type)
-(typeattributeset non_security_file_type (xcowsay_exec_t ))
-(typeattributeset cil_gen_require non_auth_file_type)
-(typeattributeset non_auth_file_type (xcowsay_exec_t ))
-(typeattributeset cil_gen_require entry_type)
-(typeattributeset entry_type (xcowsay_exec_t ))
-(typeattributeset cil_gen_require staff_t)
-(typeattributeset cil_gen_require fs_t)
-(allow xcowsay_t xcowsay_exec_t (file (entrypoint)))
-(allow xcowsay_t xcowsay_exec_t (file (ioctl read getattr lock map execute open)))
-(allow staff_t xcowsay_exec_t (file (ioctl read getattr map execute open execute_no_trans)))
-(allow staff_t xcowsay_t (process (transition)))
-(typetransition staff_t xcowsay_exec_t process xcowsay_t)
-(allow xcowsay_t staff_t (fd (use)))
-(allow xcowsay_t staff_t (fifo_file (ioctl read write getattr lock append)))
-(allow xcowsay_t staff_t (process (sigchld)))
-(allow xcowsay_t staff_t (unix_stream_socket (connectto)))
-(allow xcowsay_t fs_t (filesystem (getattr)))
-(filecon "/usr/bin/xcowsay" file (staff_u object_r xcowsay_exec_t ((s0) (s0))))
-
-```
-
-<br><br><br><br>
-
-
-***Step 6.*** Let's try to cut all the unecessary bloat that we have in this ```".cil"``` file now. For instance we don't need those cil_gen_require statements at all--- unlike Reference Policy where you have to have require statements in order for your policy to build and work. I also added some spacing so you can read it better.
-
-```
-
-;;;;;;;;;Declare our xcowsay_t type and associate with the object_r type;;;;;;;;;;;;;;;;;;;;;
-
-(type xcowsay_t)
-(roletype object_r xcowsay_t)
-
-
-;;;;;;;;;;Declare our xcowsay_exec_t type and associate it with the object_r type;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(type xcowsay_exec_t)
-(roletype object_r xcowsay_exec_t)
-
-
-
-;;;;;;;;;;;;;;Associate our staff_r role to our xcowsay_t type;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(roletype staff_r xcowsay_t)
-
-
-;;;;;;;;;;;;;; These rules are basically the same as calling the application_domain interface in Refpolicy;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (typeattributeset application_domain_type (xcowsay_t))
 (typeattributeset application_exec_type (xcowsay_exec_t))
 (typeattributeset domain (xcowsay_t))
 (typeattributeset entry_type (xcowsay_exec_t))
 
-;;;;;;;;;;;;;;;;These are the allow rules so that we can do a typetransition;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+```
+<br><br><br>
 
+
+***Step 6.*** Add allow rules so that we can do a typetransition
+
+```
 (allow xcowsay_t xcowsay_exec_t (file (entrypoint ioctl read getattr lock map execute open)))
 (allow staff_t xcowsay_exec_t (file (ioctl read getattr map execute open execute_no_trans)))
 (allow staff_t xcowsay_t (process (transition)))
 (typetransition staff_t xcowsay_exec_t process xcowsay_t)
+```
 
-;;;;;;;;;;;;;;;;;;;;;;;More allow rules;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+<br><br><br>
 
+
+***Step 7.*** Change the context of the ```xcowsay``` program to match what we have in our ```.cil``` file and make sure it is labeled correct
+
+```
+sudo chcon -t xcowsay_exec_t /usr/bin/xcowsay
+ls -lZ /usr/bin/xcowsay
+```
+<br><br><br>
+
+
+***Step 8.*** Run the ```xcowsay``` program and check the logs to see what denials we get and decide on whether to add them or not to the policy. To do that run the following commands:
+
+```
+sudo ausearch -m AVC,USER_AVC,SELINUX_ERR,USER_SELINUX_ERR -ts 16:18
+```
+
+<br><br><br>
+
+
+
+
+***Step 7.*** These are the allow rules I got from checking the AVC denials from the previous step and decided they were ok to add to the policy
+
+```
 (allow xcowsay_t staff_t (fd (use)))
 (allow xcowsay_t staff_t (fifo_file (ioctl read write getattr lock append)))
 (allow xcowsay_t staff_t (process (sigchld)))
 (allow xcowsay_t staff_t (unix_stream_socket (connectto)))
 (allow xcowsay_t fs_t (filesystem (getattr)))
+```
 
-;;;;;;;;;;;;;;;;;;This is the file context for our file;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+<br><br><br><br>
 
-(filecon "/usr/bin/xcowsay" file (staff_u object_r xcowsay_exec_t ((s0) (s0))))
+
+***Step 8.*** Create the file context for our file
 
 ```
+(filecon "/usr/bin/xcowsay" file (staff_u object_r xcowsay_exec_t ((s0) (s0))))
+```
+
+
 
 
 
