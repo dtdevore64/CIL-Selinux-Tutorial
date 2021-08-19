@@ -21,6 +21,7 @@ sudo setenforce 0
 
 ```
 touch xcowsay.cil
+nano xcowsay.cil
 ```
 <br><br><br>
 
