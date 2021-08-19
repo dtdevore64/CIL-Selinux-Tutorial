@@ -88,7 +88,7 @@ ls -lZ /usr/bin/xcowsay
 <br><br><br>
 
 
-***Step 9.*** Run the ```xcowsay``` program and check the logs to see what denials we get and decide on whether to add them or not to the policy. To do that run the following command
+***Step 9.*** Run the ```xcowsay``` program and check the logs to see what AVC denials we get and decide on whether to add them or not to the policy. To do that run the following command
 
 ```
 xcowsay
