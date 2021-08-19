@@ -1,7 +1,7 @@
 # **CIL Selinux Tutorial**
 <br><br>
 
-I will show you how to write Selinux policy using the CIL(Common Intermediate Language). We will write the policy to confine a simple program. Our program will be the xcowsay program.
+I will show you how to write Selinux policy using the CIL(Common Intermediate Language). We will write the policy to confine a simple program. Our program will be the ```xcowsay``` program.
 <br><br>
 
 
