@@ -118,7 +118,7 @@ sudo ausearch -m AVC,USER_AVC,SELINUX_ERR,USER_SELINUX_ERR -ts 16:18
 
 
 
-***Step 12.*** These are the allow rules I got from checking the AVC denials from the previous step and decided they were ok to add to the policy
+***Step 12.*** These are the allow rules I got from checking the AVC denials from the previous step and decided they were ok to add to the policy.
 
 ```
 (allow xcowsay_t staff_t (fd (use)))
@@ -126,6 +126,14 @@ sudo ausearch -m AVC,USER_AVC,SELINUX_ERR,USER_SELINUX_ERR -ts 16:18
 (allow xcowsay_t staff_t (process (sigchld)))
 (allow xcowsay_t staff_t (unix_stream_socket (connectto)))
 (allow xcowsay_t fs_t (filesystem (getattr)))
+```
+
+<br><br>
+
+After you add the allow rules you have to install the module again like so:
+
+```
+sudo semodule -i xcowsay.cil
 ```
 
 <br><br><br><br>
