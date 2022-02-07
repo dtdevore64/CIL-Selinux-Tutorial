@@ -20,7 +20,6 @@ sudo setenforce 0
 ***Step 2.*** Create the file called ```xcowsay.cil``` 
 
 ```
-touch xcowsay.cil
 nano xcowsay.cil
 ```
 <br><br><br>
